@@ -4,12 +4,48 @@ const nodemailer = require("nodemailer");
 const moment = require("moment-timezone");
 const path = require("path");
 
-const time = moment()
-  .tz("Asia/Kolkata")
-  .format("ha DD-MM-YYYY");
-
-const charList = [" ", "=", ".", "?", ";", ":", "@", "/", "_", "-", "+", "(", ")", ",", "!","\"", "%", "&", "\'"]
-const encodingList = ["%20","%3D","%2E","%3F","%3B","%3A","%40","%2F","%5F","%2D","%2B","%28","%29","%2C","%21","%22","%25","%26","%27"]
+const charList = [
+  " ",
+  "=",
+  ".",
+  "?",
+  ";",
+  ":",
+  "@",
+  "/",
+  "_",
+  "-",
+  "+",
+  "(",
+  ")",
+  ",",
+  "!",
+  '"',
+  "%",
+  "&",
+  "'"
+];
+const encodingList = [
+  "%20",
+  "%3D",
+  "%2E",
+  "%3F",
+  "%3B",
+  "%3A",
+  "%40",
+  "%2F",
+  "%5F",
+  "%2D",
+  "%2B",
+  "%28",
+  "%29",
+  "%2C",
+  "%21",
+  "%22",
+  "%25",
+  "%26",
+  "%27"
+];
 
 //setup database.db
 const database = new Datastore("database.db");
@@ -20,11 +56,13 @@ const port = process.env.PORT || 80;
 const get_key = process.env.GET_KEY || "0";
 const save_key = process.env.SAVE_KEY || "0";
 
-function decodeText(text){
-  for(var i = 0;i < encodingList.length;i++){
+function decodeText(text) {
+  for (var i = 0; i < encodingList.length; i++) {
     const character = charList[i];
     const encodingValue = encodingList[i];
-    text = String(text).split(encodingValue).join(character);
+    text = String(text)
+      .split(encodingValue)
+      .join(character);
   }
   return String(text);
 }
@@ -35,8 +73,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: "thoughts.vedant@gmail.com",
-    pass: "N!ce#acks"
+    user: "thoughts.tanvi@gmail.com",
+    pass: "14070805"
   }
 });
 
@@ -50,7 +88,7 @@ async function sendMail(receiver, data, subject, res) {
       html: data // html body
     })
     .then(info => {
-      res.status(200).json({"status":"ok"});
+      res.status(200).json({ status: "ok" });
     });
 }
 
@@ -71,8 +109,10 @@ app.get("/", (req, res) => {
 app.get("/save/:key/:thought/:activity/:idea", (req, res) => {
   if (req.params.key == save_key) {
     console.log("saving to database");
+    const timestamp = new Date();
     const to_save = {
-      timestamp: moment(new Date())
+      timestamp: timestamp,
+      date: moment(timestamp)
         .tz("Asia/Kolkata")
         .format("hh:mm:ss a DD-MM-YYYY"),
       thought: decodeText(req.params.thought),
@@ -80,9 +120,9 @@ app.get("/save/:key/:thought/:activity/:idea", (req, res) => {
       idea: decodeText(req.params.idea)
     };
     database.insert(to_save);
-    res.status(200).json({"status":"ok"});
+    res.status(200).json({ status: "ok" });
   } else {
-    res.status(400).json({"status":"server error"});
+    res.status(400).json({ status: "server error" });
   }
 });
 
@@ -120,11 +160,11 @@ app.get("/sendmail/:key/:email/:count", (req, res) => {
         sendMail(
           receiver,
           to_send,
-          `Last ${count} entries of Vedant's journal`,
+          `Last ${count} entries of Tanvi's journal`,
           res
         );
       });
   } else {
-    res.status(400).json({"status":"server error"});
+    res.status(400).json({ status: "server error" });
   }
 });
